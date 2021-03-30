@@ -30,11 +30,6 @@ var (
 	port      = flag.String("port", "8888", "Port for http server")
 	urls      = flag.StringArray("url", []string{}, "List of urls to get mjpeg streams from")
 
-	minioKey      = flag.String("minioKey", "", "Minio AccessKeyID")
-	minioSecret   = flag.String("minioSecret", "", "Minio SecretAccessKey")
-	minioEndpoint = flag.String("minioEndpoint", "", "Minio endpoint")
-	minioBucket   = flag.String("minioBucket", "public", "Minio bucket")
-
 	domain = flag.String("domain", "example.com", "Domain")
 
 	snapshotCam = flag.String("snapshotCam", "", "Cam url to take screenshot from")
@@ -177,20 +172,6 @@ func main() {
 		writer.Write(buf.Bytes())
 		writer.Header().Add("content-type", "text/html")
 	})
-
-	snapshotClient, err := NewMinioClient(ClientOptions{
-		Endpoint:        *minioEndpoint,
-		Domain:          *domain,
-		Bucket:          *minioBucket,
-		SecretAccessKey: *minioSecret,
-		AccessKeyID:     *minioKey,
-		CamUrl:          *snapshotCam,
-	})
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	http.Handle("/snapshot", snapshotClient)
 
 	log.Println(http.ListenAndServe(net.JoinHostPort("", *port), nil))
 }
